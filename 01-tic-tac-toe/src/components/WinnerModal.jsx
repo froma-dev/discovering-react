@@ -6,7 +6,7 @@ export function WinnerModal ({ winner, resetGame}) {
     const winnerText = winner === false ? 'Tie' : 'Winner:';
 
     return (
-        <section className="winner">
+        <section className="winner winner--show">
             <div className="text">
                 <h2>{winnerText}</h2>
 

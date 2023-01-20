@@ -1,6 +1,6 @@
 export const TURNS = {
-    X: '❤️',
-    O: '💔'
+    X: '👽',
+    O: '👻'
 };
 export const GAME_STATE = {
     NEW_GAME: null,

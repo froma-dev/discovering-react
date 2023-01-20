@@ -1,5 +1,5 @@
 import './App.css'
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import confetti from "canvas-confetti";
 import {Square} from "./components/Square.jsx";
 import {TURNS, GAME_STATE} from './constants.js'
@@ -20,6 +20,22 @@ function App() {
     const [board, setBoard] = useState(restoreGame);
     const [turn, setTurn] = useState(restoreTurn);
     const [winner, setWinner] = useState(GAME_STATE.NEW_GAME);
+    const [winningCombo, setWinningCombo] = useState([]);
+    const [displayWinner, setDisplayWinner] = useState(false);
+
+    useEffect(() => {
+        let displayWinnerId;
+
+        if (winner !== GAME_STATE.NEW_GAME) {
+            displayWinnerId = setTimeout(() => {
+                setDisplayWinner(true);
+            }, 500);
+        }
+
+        return () => {
+            clearTimeout(displayWinnerId)
+        }
+    }, [winningCombo]);
 
     const updateBoard = (index) => {
         if (board[index] || winner) return;
@@ -36,14 +52,16 @@ function App() {
         saveGameToStorage({
             board: newBoard,
             turn: newTurn
-        })
+        });
 
-        const newWinner = checkWinner(newBoard);
+        const {newWinner, combo} = checkWinner(newBoard);
 
         if (newWinner) {
             confetti();
+            setWinningCombo(combo);
             setWinner(newWinner);
         } else if (checkEndGame(newBoard)) {
+            setWinningCombo([]);
             setWinner(GAME_STATE.TIE);
         }
     };
@@ -52,6 +70,8 @@ function App() {
         setBoard(Array(9).fill(null));
         setTurn(TURNS.X);
         setWinner(GAME_STATE.NEW_GAME);
+        setWinningCombo([]);
+        setDisplayWinner(false);
     }
 
     return (
@@ -66,6 +86,7 @@ function App() {
                                 key={index}
                                 index={index}
                                 updateBoard={updateBoard}
+                                isWinningCombo={winningCombo.indexOf(index) >= 0}
                             >
                                 {square}
                             </Square>
@@ -82,10 +103,12 @@ function App() {
                 </Square>
             </section>
 
-            <WinnerModal
-                resetGame={resetGame}
-                winner={winner}
-            />
+            {displayWinner &&
+                <WinnerModal
+                    resetGame={resetGame}
+                    winner={winner}
+                />
+            }
         </main>
     )
 }
