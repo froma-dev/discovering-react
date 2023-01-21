@@ -1,12 +1,20 @@
-export const Square = ({ children, isSelected, updateBoard, index, isWinningCombo}) => {
+export const Square = ({ children, isSelected, index, isWinningCombo, onClickHandler, onHoverHandler}) => {
     const className = `square ${isSelected ? 'is-selected' : ''} ${isWinningCombo ? 'win' : ''}`
 
     const handleClick = () => {
-        updateBoard(index);
-    }
+        onClickHandler(index);
+    };
+
+    const handleMouseEnter = () => {
+        onHoverHandler(true, index);
+    };
+
+    const handleMouseLeave = () => {
+        onHoverHandler(false, index);
+    };
 
     return (
-        <div onClick={handleClick} className={className}>
+        <div onClick={handleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className={className}>
             {children}
         </div>
     )

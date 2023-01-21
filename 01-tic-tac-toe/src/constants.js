@@ -2,6 +2,19 @@ export const TURNS = {
     X: '👽',
     O: '👻'
 };
+
+export const AVATARS = [
+    {avatar: '👻', name: 'Ghostlic'},
+    {avatar: '👽', name: 'Himan'},
+    {avatar: '🤡', name: 'u'},
+    {avatar: '👾', name: 'mi'},
+    {avatar: '🦝', name: 'Rackooff'},
+    {avatar: '🐰', name: 'GRabbit'},
+    {avatar: '🐼', name: 'Pxnda'},
+    {avatar: '🐕', name: 'PaxBlax'},
+    {avatar: '🐈', name: 'Kiri2'}
+];
+
 export const GAME_STATE = {
     NEW_GAME: null,
     TIE: false

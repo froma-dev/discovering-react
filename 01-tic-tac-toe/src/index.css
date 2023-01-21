@@ -139,7 +139,36 @@ body {
 }
 
 .square.win {
+    background-color: #09f;
+}
+
+.square.win .avatar {
     animation: pop ease-in-out 0.3s forwards;
+}
+
+.avatar-grid {
+    display: grid;
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.avatar-name {
+    opacity: 0;
+    margin: 8px;
+    height: 16px;
+}
+
+.avatar-name.hover {
+    animation: fade-in 0.3s ease-in-out forwards;
+}
+
+.avatar-grid .square.is-selected {
+    background-color: #09f;
+}
+
+.avatar-grid .square.is-selected:nth-child(1) {
+    background-color: #99ff00;
 }
 
 @keyframes pop {
@@ -151,7 +180,6 @@ body {
     }
     100% {
         transform: scale(1);
-        background-color: #09f;
     }
 }
 

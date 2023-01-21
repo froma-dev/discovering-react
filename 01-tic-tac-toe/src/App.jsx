@@ -6,6 +6,7 @@ import {TURNS, GAME_STATE} from './constants.js'
 import {checkWinner, checkEndGame} from './logic/board.js'
 import {WinnerModal} from './components/WinnerModal.jsx'
 import {saveGameToStorage, resetGameStorage, getStoredBoard, getStoredTurn} from './logic/storage/index.js'
+import {AvatarSelection} from "./components/AvatarSelection.jsx";
 
 const board = Array(9).fill(null);
 const restoreGame = () => {
@@ -13,10 +14,11 @@ const restoreGame = () => {
 }
 
 const restoreTurn = () => {
-    return getStoredTurn() ?? TURNS.X;
+    return getStoredTurn();
 }
 
 function App() {
+    const [avatars, setAvatars] = useState([]);
     const [board, setBoard] = useState(restoreGame);
     const [turn, setTurn] = useState(restoreTurn);
     const [winner, setWinner] = useState(GAME_STATE.NEW_GAME);
@@ -37,6 +39,12 @@ function App() {
         }
     }, [winningCombo]);
 
+    const updateAvatar = (selectedAvatars) => {
+        console.log('updateAvatar');
+        setAvatars(selectedAvatars);
+        setTurn(selectedAvatars[0].avatar)
+    };
+
     const updateBoard = (index) => {
         if (board[index] || winner) return;
 
@@ -46,7 +54,7 @@ function App() {
         setBoard(newBoard);
 
         // Switch turns.
-        const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X;
+        const newTurn = turn === avatars[0].avatar ? avatars[1].avatar : avatars[0].avatar;
         setTurn(newTurn);
 
         saveGameToStorage({
@@ -68,7 +76,7 @@ function App() {
 
     const resetGame = () => {
         setBoard(Array(9).fill(null));
-        setTurn(TURNS.X);
+        setTurn(avatars[0].avatar);
         setWinner(GAME_STATE.NEW_GAME);
         setWinningCombo([]);
         setDisplayWinner(false);
@@ -78,30 +86,44 @@ function App() {
         <main className="board">
             <h1>Tic Tac Toe</h1>
             <button onClick={resetGame}>Reset Game</button>
-            <section className="game">
-                {
-                    board.map((square, index) => {
-                        return (
-                            <Square
-                                key={index}
-                                index={index}
-                                updateBoard={updateBoard}
-                                isWinningCombo={winningCombo.indexOf(index) >= 0}
-                            >
-                                {square}
-                            </Square>
-                        )
-                    })
-                }
-            </section>
-            <section className='turn'>
-                <Square isSelected={turn === TURNS.X}>
-                    {TURNS.X}
-                </Square>
-                <Square isSelected={turn === TURNS.O}>
-                    {TURNS.O}
-                </Square>
-            </section>
+
+            {!turn &&
+                <section className="avatar-selection">
+                    <AvatarSelection
+                        onClickHandler={updateAvatar}
+                    ></AvatarSelection>
+                </section>
+            }
+
+            {turn &&
+                <section>
+                    <section className="game">
+                        {
+                            board.map((square, index) => {
+                                console.log(square);
+                                return (
+                                    <Square
+                                        key={index}
+                                        index={index}
+                                        onClickHandler={updateBoard}
+                                        isWinningCombo={winningCombo.indexOf(index) >= 0}
+                                    >
+                                        <span className="avatar">{square}</span>
+                                    </Square>
+                                )
+                            })
+                        }
+                    </section>
+                    <section className='turn'>
+                        <Square isSelected={turn === avatars[0].avatar}>
+                            {avatars[0].avatar}
+                        </Square>
+                        <Square isSelected={turn === avatars[1].avatar}>
+                            {avatars[1].avatar}
+                        </Square>
+                    </section>
+                </section>
+            }
 
             {displayWinner &&
                 <WinnerModal
