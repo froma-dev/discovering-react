@@ -10,16 +10,26 @@ export function AvatarSelection({onClickHandler}) {
     const [selectedAvatars, setSelectedAvatars] = useState([]);
 
     const handleClick = (index) => {
-        if (selectedAvatars[index] || selectedAvatars.length === MAX_PLAYERS) return;
-
         const selected = [...selectedAvatars];
+        const selectedIndex = selected.indexOf(AVATARS[index]);
 
-        selected.push(AVATARS[index]);
+        if (selected.length === 2 && !selectedAvatars[selectedIndex]) {
+            return
+        }
+
+        if (selectedIndex >= 0) {
+            selected.splice(selectedIndex, 1);
+        } else {
+            selected.push(AVATARS[index]);
+        }
+
         setSelectedAvatars(selected);
     };
 
     const handleStartGame = () => {
-        onClickHandler(selectedAvatars);
+        if (selectedAvatars.length === MAX_PLAYERS) {
+            onClickHandler(selectedAvatars);
+        }
     };
 
     const handleHover = (pointerEnter, index) => {
@@ -32,7 +42,8 @@ export function AvatarSelection({onClickHandler}) {
 
     return (
         <section className="avatar-selection avatar-selection--show">
-            <h2 className={hoveredAvatar ? 'avatar-name hover' : 'avatar-name'}>{hoveredAvatar??locales.select_your_avatar}</h2>
+            <h3>{locales.select_your_avatar}</h3>
+            <h2 className={hoveredAvatar ? 'avatar-name hover' : 'avatar-name'}>{hoveredAvatar}</h2>
             <br/>
             <div className="avatar-grid">
                 {
@@ -54,8 +65,19 @@ export function AvatarSelection({onClickHandler}) {
                 }
             </div>
 
+            <section className='turn'>
+                {
+                    selectedAvatars.map((avatar, index) => {
+                      return <Square> {avatar.avatar} </Square>
+                    })
+                }
+            </section>
+
             <footer>
-                <button onClick={handleStartGame}>{locales.start_game}</button>
+                <button
+                    className={selectedAvatars.length === MAX_PLAYERS ? '--enabled' : ''}
+                    onClick={handleStartGame}
+                >{locales.start_game} </button>
             </footer>
         </section>
     )

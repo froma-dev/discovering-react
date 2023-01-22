@@ -52,6 +52,15 @@ body {
     font-weight: bold;
     cursor: pointer;
 }
+.avatar-selection footer button {
+    background: #888888;
+    cursor: not-allowed;
+}
+
+.avatar-selection button.--enabled {
+    background-color: transparent;
+    cursor: pointer;
+}
 
 .board button:hover {
     background: #eee;
@@ -71,6 +80,7 @@ body {
     width: fit-content;
     position: relative;
     border-radius: 10px;
+    gap: 8px;
 }
 
 .turn .square,
@@ -135,7 +145,7 @@ body {
 }
 
 .square:hover {
-    background-color: #888888;
+    background-color: rgba(105, 105, 105, 0.5);
 }
 
 .square.win {
@@ -153,6 +163,10 @@ body {
     gap: 8px;
 }
 
+.avatar.avatar--hover {
+    animation: blink .5s ease-in-out infinite alternate;
+}
+
 .avatar-name {
     opacity: 0;
     margin: 8px;
@@ -167,8 +181,21 @@ body {
     background-color: #09f;
 }
 
-.avatar-grid .square.is-selected:nth-child(1) {
-    background-color: #99ff00;
+.player-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.player-info .square {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.player-info .wins {
+    background: #cfff00;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    color: #03a9f4;
 }
 
 @keyframes pop {
@@ -188,6 +215,15 @@ body {
         opacity: 0;
     }
     100% {
+        opacity: 1;
+    }
+}
+
+@keyframes blink {
+    0% {
+        opacity: 0;
+    }
+    75% {
         opacity: 1;
     }
 }

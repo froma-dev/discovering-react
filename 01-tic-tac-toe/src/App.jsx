@@ -2,7 +2,7 @@ import './App.css'
 import {useState, useEffect} from "react";
 import confetti from "canvas-confetti";
 import {Square} from "./components/Square.jsx";
-import {TURNS, GAME_STATE} from './constants.js'
+import {GAME_STATE} from './constants.js'
 import {checkWinner, checkEndGame} from './logic/board.js'
 import {WinnerModal} from './components/WinnerModal.jsx'
 import {saveGameToStorage, resetGameStorage, getStoredBoard, getStoredTurn} from './logic/storage/index.js'
@@ -24,12 +24,23 @@ function App() {
     const [winner, setWinner] = useState(GAME_STATE.NEW_GAME);
     const [winningCombo, setWinningCombo] = useState([]);
     const [displayWinner, setDisplayWinner] = useState(false);
+    const [hoveredAvatar, setHoveredAvatar] = useState({});
+    const [wins, setWins] = useState(Array(2).fill(0));
 
     useEffect(() => {
         let displayWinnerId;
 
         if (winner !== GAME_STATE.NEW_GAME) {
             displayWinnerId = setTimeout(() => {
+                const newWins = [...wins];
+
+                if (avatars[0].avatar === winner) {
+                    newWins[0]++;
+                } else if (avatars[1].avatar === winner) {
+                    newWins[1]++;
+                }
+
+                setWins(newWins);
                 setDisplayWinner(true);
             }, 500);
         }
@@ -82,6 +93,17 @@ function App() {
         setDisplayWinner(false);
     }
 
+    const handleHover = (pointerEnter, index) => {
+        if (pointerEnter) {
+            const avatar = {};
+
+            avatar[index] = turn;
+            setHoveredAvatar(avatar);
+        } else {
+            setHoveredAvatar({});
+        }
+    };
+
     return (
         <main className="board">
             <h1>Tic Tac Toe</h1>
@@ -100,27 +122,42 @@ function App() {
                     <section className="game">
                         {
                             board.map((square, index) => {
-                                console.log(square);
                                 return (
                                     <Square
                                         key={index}
                                         index={index}
                                         onClickHandler={updateBoard}
                                         isWinningCombo={winningCombo.indexOf(index) >= 0}
+                                        onHoverHandler={handleHover}
                                     >
-                                        <span className="avatar">{square}</span>
+                                        <span
+                                            className={hoveredAvatar[index] && !square ? 'avatar avatar--hover' : 'avatar'}
+                                        >
+                                            {!square && hoveredAvatar[index] || square}
+                                        </span>
                                     </Square>
                                 )
                             })
                         }
                     </section>
                     <section className='turn'>
-                        <Square isSelected={turn === avatars[0].avatar}>
-                            {avatars[0].avatar}
-                        </Square>
-                        <Square isSelected={turn === avatars[1].avatar}>
-                            {avatars[1].avatar}
-                        </Square>
+                        <section className="player-info">
+                            <Square isSelected={turn === avatars[0].avatar}>
+                                <span>
+                                    {avatars[0].avatar}
+                                </span>
+                            </Square>
+                            <h2 className="wins">{wins[0]}</h2>
+                        </section>
+
+                        <section className="player-info">
+                            <Square isSelected={turn === avatars[1].avatar}>
+                                <span>
+                                    {avatars[1].avatar}
+                                </span>
+                            </Square>
+                            <h2 className="wins">{wins[1]}</h2>
+                        </section>
                     </section>
                 </section>
             }
