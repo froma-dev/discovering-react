@@ -8,13 +8,14 @@ import {WinnerModal} from './components/WinnerModal.jsx'
 import {saveGameToStorage, getStoredBoard, getStoredTurn, getStoredWins, getStoredPlayers} from './logic/storage/index.js'
 import {AvatarSelection} from "./components/AvatarSelection.jsx";
 import {PlayerInfo} from "./components/PlayerInfo.jsx";
+import {locales} from "./en-EN.js";
 
 const restoreGame = () => {
     return getStoredBoard() ?? Array(9).fill(null);
 }
 
 const restoreTurn = () => {
-    return getStoredTurn();
+    return getStoredTurn() || null;
 }
 
 const restoreWins = () => {
@@ -106,6 +107,7 @@ function App() {
     const resetGame = () => {
         const newBoard = Array(9).fill(null);
         const newTurn = avatars[0].avatar;
+
         setBoard(newBoard);
         setTurn(newTurn);
         setWinner(GAME_STATE.NEW_GAME);
@@ -117,6 +119,27 @@ function App() {
             turn: newTurn,
             wins: [...wins],
             avatars: [...avatars]
+        });
+    }
+
+    const clearGame = () => {
+        const newBoard = Array(9).fill(null);
+        const newTurn = null;
+        const newWins = Array(2).fill(0);
+        const newAvatars = [];
+
+        setBoard(newBoard);
+        setTurn(newTurn);
+        setWins(newWins);
+        setWinner(GAME_STATE.NEW_GAME);
+        setWinningCombo([]);
+        setDisplayWinner(false);
+
+        saveGameToStorage({
+            board: newBoard,
+            turn: newTurn,
+            wins: newWins,
+            avatars: newAvatars
         });
     }
 
@@ -145,7 +168,8 @@ function App() {
 
             {turn &&
                 <section>
-                    <button onClick={resetGame}>Reset Game</button>
+                    <button onClick={resetGame}>{locales.reset_game}</button>
+                    <button onClick={clearGame}>{locales.clear_game}</button>
                     <section className="game">
                         {
                             board.map((square, index) => {
