@@ -196,12 +196,14 @@ function App() {
                             isSelected={turn === avatars[0].avatar}
                             wins={wins[0]}
                             avatar={avatars[0].avatar}
+                            name={avatars[0].name}
                         ></PlayerInfo>
 
                         <PlayerInfo
                             isSelected={turn === avatars[1].avatar}
                             wins={wins[1]}
                             avatar={avatars[1].avatar}
+                            name={avatars[1].name}
                         ></PlayerInfo>
                     </section>
                 </section>
