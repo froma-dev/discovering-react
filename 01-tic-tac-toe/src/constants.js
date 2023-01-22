@@ -30,3 +30,10 @@ export const WINNER_COMBOS = [
     [0, 4, 8],
     [2, 4, 6]
 ];
+
+export const LOCAL_STORAGE_ITEMS = {
+    BOARD: 'board',
+    TURN: 'turn',
+    WINS: 'wins',
+    PLAYERS: 'players'
+};

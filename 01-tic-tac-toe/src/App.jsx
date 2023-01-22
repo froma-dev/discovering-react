@@ -5,10 +5,10 @@ import {Square} from "./components/Square.jsx";
 import {GAME_STATE} from './constants.js'
 import {checkWinner, checkEndGame} from './logic/board.js'
 import {WinnerModal} from './components/WinnerModal.jsx'
-import {saveGameToStorage, resetGameStorage, getStoredBoard, getStoredTurn} from './logic/storage/index.js'
+import {saveGameToStorage, getStoredBoard, getStoredTurn, getStoredWins, getStoredPlayers} from './logic/storage/index.js'
 import {AvatarSelection} from "./components/AvatarSelection.jsx";
+import {PlayerInfo} from "./components/PlayerInfo.jsx";
 
-const board = Array(9).fill(null);
 const restoreGame = () => {
     return getStoredBoard() ?? Array(9).fill(null);
 }
@@ -17,30 +17,38 @@ const restoreTurn = () => {
     return getStoredTurn();
 }
 
+const restoreWins = () => {
+    return getStoredWins() ?? Array(2).fill(0);
+}
+
+const restorePlayers = () => {
+    return getStoredPlayers() ?? [];
+}
+
 function App() {
-    const [avatars, setAvatars] = useState([]);
+    const [avatars, setAvatars] = useState(restorePlayers);
     const [board, setBoard] = useState(restoreGame);
     const [turn, setTurn] = useState(restoreTurn);
     const [winner, setWinner] = useState(GAME_STATE.NEW_GAME);
     const [winningCombo, setWinningCombo] = useState([]);
     const [displayWinner, setDisplayWinner] = useState(false);
     const [hoveredAvatar, setHoveredAvatar] = useState({});
-    const [wins, setWins] = useState(Array(2).fill(0));
+    const [wins, setWins] = useState(restoreWins);
 
     useEffect(() => {
         let displayWinnerId;
 
         if (winner !== GAME_STATE.NEW_GAME) {
             displayWinnerId = setTimeout(() => {
-                const newWins = [...wins];
+                const newBoard = Array(9).fill(null);
+                const newTurn = avatars[0].avatar;
 
-                if (avatars[0].avatar === winner) {
-                    newWins[0]++;
-                } else if (avatars[1].avatar === winner) {
-                    newWins[1]++;
-                }
-
-                setWins(newWins);
+                saveGameToStorage({
+                    board: newBoard,
+                    turn: newTurn,
+                    wins: [...wins],
+                    avatars: [...avatars]
+                });
                 setDisplayWinner(true);
             }, 500);
         }
@@ -51,7 +59,6 @@ function App() {
     }, [winningCombo]);
 
     const updateAvatar = (selectedAvatars) => {
-        console.log('updateAvatar');
         setAvatars(selectedAvatars);
         setTurn(selectedAvatars[0].avatar)
     };
@@ -68,29 +75,49 @@ function App() {
         const newTurn = turn === avatars[0].avatar ? avatars[1].avatar : avatars[0].avatar;
         setTurn(newTurn);
 
-        saveGameToStorage({
-            board: newBoard,
-            turn: newTurn
-        });
-
         const {newWinner, combo} = checkWinner(newBoard);
+        const newWins = [...wins];
 
         if (newWinner) {
             confetti();
+
+            if (avatars[0].avatar === newWinner) {
+                newWins[0]++;
+            } else if (avatars[1].avatar === newWinner) {
+                newWins[1]++;
+            }
+
+            setWins(newWins);
             setWinningCombo(combo);
             setWinner(newWinner);
         } else if (checkEndGame(newBoard)) {
             setWinningCombo([]);
             setWinner(GAME_STATE.TIE);
         }
+
+        saveGameToStorage({
+            board: newBoard,
+            turn: newTurn,
+            wins: newWins,
+            avatars: [...avatars]
+        });
     };
 
     const resetGame = () => {
-        setBoard(Array(9).fill(null));
-        setTurn(avatars[0].avatar);
+        const newBoard = Array(9).fill(null);
+        const newTurn = avatars[0].avatar;
+        setBoard(newBoard);
+        setTurn(newTurn);
         setWinner(GAME_STATE.NEW_GAME);
         setWinningCombo([]);
         setDisplayWinner(false);
+
+        saveGameToStorage({
+            board: newBoard,
+            turn: newTurn,
+            wins: [...wins],
+            avatars: [...avatars]
+        });
     }
 
     const handleHover = (pointerEnter, index) => {
@@ -107,7 +134,6 @@ function App() {
     return (
         <main className="board">
             <h1>Tic Tac Toe</h1>
-            <button onClick={resetGame}>Reset Game</button>
 
             {!turn &&
                 <section className="avatar-selection">
@@ -119,6 +145,7 @@ function App() {
 
             {turn &&
                 <section>
+                    <button onClick={resetGame}>Reset Game</button>
                     <section className="game">
                         {
                             board.map((square, index) => {
@@ -141,23 +168,17 @@ function App() {
                         }
                     </section>
                     <section className='turn'>
-                        <section className="player-info">
-                            <Square isSelected={turn === avatars[0].avatar}>
-                                <span>
-                                    {avatars[0].avatar}
-                                </span>
-                            </Square>
-                            <h2 className="wins">{wins[0]}</h2>
-                        </section>
+                        <PlayerInfo
+                            isSelected={turn === avatars[0].avatar}
+                            wins={wins[0]}
+                            avatar={avatars[0].avatar}
+                        ></PlayerInfo>
 
-                        <section className="player-info">
-                            <Square isSelected={turn === avatars[1].avatar}>
-                                <span>
-                                    {avatars[1].avatar}
-                                </span>
-                            </Square>
-                            <h2 className="wins">{wins[1]}</h2>
-                        </section>
+                        <PlayerInfo
+                            isSelected={turn === avatars[1].avatar}
+                            wins={wins[1]}
+                            avatar={avatars[1].avatar}
+                        ></PlayerInfo>
                     </section>
                 </section>
             }
